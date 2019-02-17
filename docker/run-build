@@ -16,8 +16,6 @@ docker run --rm \
     set -o errexit
     set -o xtrace
      
-    sudo yum install -y awscli wget cmake gcc-c++ boost-devel openssl-devel ncurses-devel readline-devel numactl-devel bison binutils MySQL-python perl-DBD-MySQL perl-XML-Simple
-
     export JOB_CMAKE='${JOB_CMAKE}'
     export COMPILER='${COMPILER}'
     export CMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}'
