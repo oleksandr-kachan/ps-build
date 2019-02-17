@@ -15,7 +15,8 @@ docker run --rm \
     sh -c "
     set -o errexit
     set -o xtrace
-     
+    
+    sudo apt-get -y install libssl-dev 
     export JOB_CMAKE='${JOB_CMAKE}'
     export COMPILER='${COMPILER}'
     export CMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}'
