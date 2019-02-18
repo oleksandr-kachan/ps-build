@@ -120,6 +120,7 @@ status=0
 if [[ "${DEFAULT_TESTING}" != "no" ]]; then
   MYSQLD_ENV="${ADD_TO_LD_PRELOAD:-}${JEMALLOC}:${EATMYDATA}"
 	MTR_BUILD_THREAD=auto ./mysql-test-run.pl \
+        --async-client \
         --parallel=${PARALLEL} \
         --result-file \
         ${MTR_ARGS} \
@@ -135,6 +136,7 @@ if [[ "$HOTBACKUP_TESTING" != "no" ]] && [[ -n "${TOKUDB_PLUGIN}" ]] && [[ -n "$
     MYSQLD_ENV="${ADD_TO_LD_PRELOAD:-}${HOTBACKUP_LIB}:${JEMALLOC}:${EATMYDATA}"
 
     MTR_BUILD_THREAD=auto ./mtr \
+        --async-client \
         --force \
         --max-test-fail=0 \
         --suite-timeout=9999 \
