@@ -16,6 +16,10 @@ docker run --rm \
     set -o errexit
     set -o xtrace
 
+    sudo sh -c \"echo 'deb http://archive.ubuntu.com/ubuntu/ cosmic main restricted' >> /etc/apt/sources.list\"
+    sudo apt-get update
+    sudo apt-get -y install cmake
+
     export CMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}'
     export ANALYZER_OPTS='${ANALYZER_OPTS}'
     export DEFAULT_TESTING='${DEFAULT_TESTING}'
