@@ -208,7 +208,7 @@ pipeline {
             agent { label LABEL }
             steps {
                 retry(3) {
-                git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'hors-oom-cosmic', url: 'https://github.com/hors/ps-build'
                     withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                         sh '''
                             sudo git reset --hard
