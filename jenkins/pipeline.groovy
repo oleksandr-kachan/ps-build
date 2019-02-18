@@ -131,7 +131,7 @@ pipeline {
                     fi
                     rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                 '''
-                git branch: '5.6', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'hors-oom-cosmic5.6', url: 'https://github.com/hors/ps-build'
                 sh '''
                     git reset --hard
                     git clean -xdf
