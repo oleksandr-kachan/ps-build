@@ -84,10 +84,6 @@ function process_mtr_output {
 }
 ##
 #
-if [[ "${CMAKE_BUILD_TYPE}" = "Debug" ]]; then
-    MTR_ARGS+=" --debug-server"
-fi
-#
 if [[ "${ANALYZER_OPTS}" == *WITH_VALGRIND=ON* ]]; then
   MTR_ARGS+=" --valgrind --valgrind-clients --valgrind-option=--leak-check=full --valgrind-option=--show-leak-kinds=all"
   [[ ${OPENSSL_VER} < '1.0.2' ]] && export OPENSSL_ia32cap=~0x200000000000000
