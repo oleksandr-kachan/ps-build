@@ -105,7 +105,7 @@
         description: TokuDB specific mtr args
     - string:
         name: MTR_ARGS
-        default: --unit-tests-report
+        default: --unit-tests-report --suite=binlog_gtid
         description: "mysql-test-run.pl options, for options like: --big-test --only-big-test --nounit-tests --unit-tests-report"
     - string:
         name: MTR_REPEAT
@@ -115,7 +115,6 @@
         name: LABEL
         choices:
         - docker-32gb
-        - docker
         description: Run build on specified instance type. If "-DWITH_ASAN=ON -DWITH_ASAN_SCOPE=ON -DWITH_UBSAN=ON" are specified above, docker-32gb is used unconditionally.
     axes:
       - axis:

@@ -7,9 +7,9 @@
     pipeline-scm:
       scm:
         - git:
-            url: https://github.com/Percona-Lab/ps-build
+            url: https://github.com/hors/ps-build
             branches:
-            - "8.0"
+            - "jen-1043"
             wipe-workspace: false
       lightweight-checkout: true
       script-path: jenkins/pipeline.groovy
@@ -130,5 +130,4 @@
         name: LABEL
         choices:
         - docker-32gb
-        - docker
         description: Run build on specified instance type

@@ -105,7 +105,7 @@ pipeline {
             description: 'Run each test N number of times, --repeat=N',
             name: 'MTR_REPEAT')
         choice(
-            choices: 'docker-32gb\ndocker',
+            choices: 'docker-32gb',
             description: 'Run build on specified instance type',
             name: 'LABEL')
     }
@@ -143,7 +143,7 @@ pipeline {
                     fi
                     rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                 '''
-                git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'jen-1043', url: 'https://github.com/hors/ps-build'
                 sh '''
                     # sudo is needed for better node recovery after compilation failure
                     # if building failed on compilation stage directory will have files owned by docker user
@@ -203,7 +203,7 @@ pipeline {
             agent { label LABEL }
             steps {
                 retry(3) {
-                git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'jen-1043', url: 'https://github.com/hors/ps-build'
                     withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                         sh '''
                             sudo git reset --hard
