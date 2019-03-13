@@ -1,7 +1,7 @@
 void build(String CMAKE_BUILD_TYPE) {
-    node('fips-centos-7-x64') {
+    script {
         sh 'echo Prepare: \$(date -u "+%s")'
-        git branch: PS_BRANCH, url: 'https://github.com/Percona-Lab/ps-build'
+        git branch: 'fix_fip', url: 'https://github.com/hors/ps-build'
         sh '''
             git reset --hard
             git clean -xdf
@@ -68,12 +68,14 @@ pipeline {
             parallel {
                 stage('Test RelWithDebInfo') {
                     options { retry(3) }
+                    agent { label 'fips-centos-7-x64' }
                     steps {
                         build('RelWithDebInfo')
                     }
                 }
                 stage('Test Debug') {
                     options { retry(3) }
+                    agent { label 'fips-centos-7-x64' }
                     steps {
                         build('Debug')
                     }
@@ -112,4 +114,4 @@ pipeline {
             }
         }
     }
-}
+}}
