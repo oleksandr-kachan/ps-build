@@ -16,6 +16,11 @@ set -o xtrace
 
 WORKDIR_ABS=$(cd ${1:-./build}; pwd -P)
 rm -fr ${WORKDIR_ABS}/PS
+
+if [ -f /usr/bin/apt-get ]; then
+    sudo apt-get -y  install liblz4-tool
+fi
+
 mkdir -p ${WORKDIR_ABS}/PS/sql
 tar -C ${WORKDIR_ABS}/PS --strip-components=1 -zxpf $(ls $WORKDIR_ABS/*.tar.gz | head -1)
 cd ${WORKDIR_ABS}/PS/mysql-test
