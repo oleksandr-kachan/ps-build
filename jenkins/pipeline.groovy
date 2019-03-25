@@ -122,13 +122,14 @@ pipeline {
         stage('Build') {
             agent { label LABEL }
             steps {
-                timeout(time: 180, unit: 'MINUTES')  {
+                timeout(time: 5, unit: 'MINUTES')  {
                     retry(3) {
                     script {
                         currentBuild.displayName = "${BUILD_NUMBER} ${CMAKE_BUILD_TYPE}/${DOCKER_OS}"
                     }
 
                     sh 'echo Prepare: \$(date -u "+%s")'
+                    sh 'sdfsdfsdg sdfgsdfg'
                     echo 'Checking Percona Server branch version, JEN-913 prevent wrong version run'
                     sh '''
                         MY_BRANCH_BASE_MAJOR=8
@@ -191,7 +192,7 @@ pipeline {
         stage('Archive Build') {
             agent { label 'micro-amazon' }
             steps {
-                timeout(time: 60, unit: 'MINUTES')  {
+                timeout(time: 5, unit: 'MINUTES')  {
                     retry(3) {
                         deleteDir()
                         sh '''
