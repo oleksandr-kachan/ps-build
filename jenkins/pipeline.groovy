@@ -1,22 +1,5 @@
 pipeline_timeout = 10
 
-if (
-    (params.ANALYZER_OPTS.contains('-DWITH_ASAN=ON')) ||
-    (params.ANALYZER_OPTS.contains('-DWITH_UBSAN=ON'))
-    ) { pipeline_timeout = 24 }
-
-if (params.ANALYZER_OPTS.contains('-DWITH_VALGRIND=ON'))
-    { pipeline_timeout = 144 }
-
-if (
-    ((params.ANALYZER_OPTS.contains('-DWITH_ASAN=ON')) &&
-    (params.ANALYZER_OPTS.contains('-DWITH_ASAN_SCOPE=ON')) &&
-    (params.ANALYZER_OPTS.contains('-DWITH_UBSAN=ON'))) ||
-    ((params.MTR_ARGS.contains('--big-test')) || (params.MTR_ARGS.contains('--only-big-test')))
-    ) {
-        LABEL = 'docker-32gb'
-        pipeline_timeout = 13
-      }
 
 pipeline {
     parameters {
@@ -115,13 +98,14 @@ pipeline {
     options {
         skipDefaultCheckout()
         skipStagesAfterUnstable()
-        timeout(time: pipeline_timeout, unit: 'HOURS')
+        timeout(time: pipeline_timeout, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '200', artifactNumToKeepStr: '200'))
     }
     stages {
         stage('Build') {
             agent { label LABEL }
             steps {
+                timeout(time: 5, unit: 'MINUTES')  {
                 retry(3) {
                 script {
                     currentBuild.displayName = "${BUILD_NUMBER} ${CMAKE_BUILD_TYPE}/${DOCKER_OS}"
@@ -184,6 +168,7 @@ pipeline {
                     fi
                 '''
                 }
+              }
             }
         }
         stage('Archive Build') {
