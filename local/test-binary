@@ -29,6 +29,8 @@ fi
 if [[ $(rpm --eval %_arch) = "i386" ]] && [[ -f /opt/rh/devtoolset-2/enable ]]; then
     source /opt/rh/devtoolset-2/enable
 fi
+sudo yum -y install python36
+sudo ln -s /bin/python3 /bin/python
 
 OPENSSL_HEADER="/usr/include/openssl/opensslv.h"
 TOKUDB_PLUGIN=$(find $WORKDIR_ABS -type f -name 'ha_tokudb.so')
