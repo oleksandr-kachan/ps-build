@@ -138,7 +138,7 @@ else
     WITH_MECAB="system"
 fi
 
-
+sudo yum -y remove libcurl-devel
 # ------------------------------------------------------------------------------
 # Finaly, compile!
 # ------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ pushd ${WORKDIR}
         -DDOWNLOAD_ROOT=${DOWNLOAD_DIR} \
         -DDOWNLOAD_BOOST=ON \
         -DWITH_BOOST=${DOWNLOAD_DIR} \
-        -DWITH_KEYRING_VAULT=ON \
+        -DWITH_KEYRING_VAULT=OFF \
         -DCMAKE_INSTALL_PREFIX=/usr/local/$PRODUCT_FULL \
         -DMYSQL_DATADIR=/usr/local/$PRODUCT_FULL/data \
         -DCOMPILATION_COMMENT="$COMMENT" \
@@ -174,5 +174,8 @@ pushd ${WORKDIR}
     make ${MAKE_OPTS}
     make DESTDIR=${INSTALL_DIR} install > make_install.log
 popd
+
+find ${SOURCEDIR} -type f -name 'keyring_vault_thd_wait.test'
+find ${INSTALL_DIR} -type f -name 'xa_debug.test'
 
 tar -C ${INSTALL_DIR}/usr/local --owner=0 --group=0 -czf "${WORKDIR}/$PRODUCT_FULL.tar.gz" $PRODUCT_FULL
