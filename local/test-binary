@@ -30,6 +30,7 @@ fi
 if [[ $(rpm --eval %_arch) = "i386" ]] && [[ -f /opt/rh/devtoolset-2/enable ]]; then
     source /opt/rh/devtoolset-2/enable
 fi
+sudo yum -y install lz4
 
 OPENSSL_HEADER="/usr/include/openssl/opensslv.h"
 TOKUDB_PLUGIN=$(find $WORKDIR_ABS/PS -type f -name 'ha_tokudb.so')
