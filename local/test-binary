@@ -31,6 +31,7 @@ if [[ $(rpm --eval %_arch) = "i386" ]] && [[ -f /opt/rh/devtoolset-2/enable ]]; 
     source /opt/rh/devtoolset-2/enable
 fi
 
+sudo yum -y install perl-Memoize
 OPENSSL_HEADER="/usr/include/openssl/opensslv.h"
 TOKUDB_PLUGIN=$(find $WORKDIR_ABS/PS -type f -name 'ha_tokudb.so')
 HOTBACKUP_LIB=$(find $WORKDIR_ABS/PS -type f -name 'libHotBackup.so')
