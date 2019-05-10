@@ -81,6 +81,14 @@ function process_mtr_output {
   sed -i.bak -e "s:@@SKIPPED@@:${SKIPPED}:g" ${OUTFILE}
   sed -i.bak -e "s: \[::g" ${OUTFILE}
 }
+
+if [ -f /usr/bin/yum ]; then
+    sudo yum -y install perl-Sys-MemInfo
+else
+    sudo apt-get -y install libsys-meminfo-perl
+fi
+
+
 ##
 if [[ "${ANALYZER_OPTS}" == *WITH_VALGRIND=ON* ]]; then
   MTR_ARGS+=" --valgrind --valgrind-clients --valgrind-option=--leak-check=full --valgrind-option=--show-leak-kinds=all"
@@ -102,6 +110,11 @@ fi
 if [[ -n "${MTR_REPEAT}" ]]; then
   MTR_ARGS+=" --repeat=${MTR_REPEAT}"
 fi
+
+if [[ "${MTR_ARGS}" == *"--suite=max_parts"* ]]; then
+    TESTCASE_TIMEOUT=$((TESTCASE_TIMEOUT * 3))
+fi
+
 #
 # force to use mecab everywhere (except RHEL)
 if [[ ! -e /etc/redhat-release ]]; then
