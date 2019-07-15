@@ -80,6 +80,7 @@ else
     MYSQL_MAINTAINER_MODE="OFF"
 fi
 
+sudo apt-get -y install libre2-dev
 
 # ------------------------------------------------------------------------------
 # set version
