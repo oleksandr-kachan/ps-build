@@ -43,6 +43,7 @@
           - ubuntu:disco
           - debian:jessie
           - debian:stretch
+          - debian:buster
     builders:
     - trigger-builds:
       - project: percona-server-5.6-pipeline

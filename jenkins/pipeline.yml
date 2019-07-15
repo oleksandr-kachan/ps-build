@@ -51,6 +51,7 @@
         - ubuntu:disco
         - debian:jessie
         - debian:stretch
+        - debian:buster
         description: OS version for compilation
     - choice:
         name: JOB_CMAKE

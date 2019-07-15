@@ -29,7 +29,7 @@ pipeline {
             description: 'Tag/Branch for Percona-TokuBackup repository',
             name: 'TOKUBACKUP_BRANCH')
         choice(
-            choices: 'centos:6\ncentos:7\ni386/centos:6\nubuntu:trusty\nubuntu:xenial\nubuntu:bionic\nubuntu:cosmic\nubuntu:disco\ndebian:jessie\ndebian:stretch',
+            choices: 'centos:6\ncentos:7\ni386/centos:6\nubuntu:trusty\nubuntu:xenial\nubuntu:bionic\nubuntu:cosmic\nubuntu:disco\ndebian:jessie\ndebian:buster\ndebian:stretch',
             description: 'OS version for compilation',
             name: 'DOCKER_OS')
         choice(
@@ -135,7 +135,7 @@ pipeline {
                     fi
                     rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                 '''
-                git branch: '5.6', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'jen-1123-add-buster-56', url: 'https://github.com/hors/ps-build'
                 sh '''
                     git reset --hard
                     git clean -xdf
@@ -191,7 +191,7 @@ pipeline {
             options { retry(3) }
             agent { label LABEL }
             steps {
-                git branch: '5.6', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'jen-1123-add-buster-56', url: 'https://github.com/hors/ps-build'
                 sh '''
                     git reset --hard
                     git clean -xdf

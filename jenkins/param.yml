@@ -144,6 +144,7 @@
           - ubuntu:cosmic
           - ubuntu:disco
           - debian:jessie
+          - debian:buster
           - debian:stretch
     builders:
     - trigger-builds:
