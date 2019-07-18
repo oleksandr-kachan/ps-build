@@ -14,7 +14,7 @@ if (
     (params.ANALYZER_OPTS.contains('-DWITH_UBSAN=ON'))) ||
     ((params.MTR_ARGS.contains('--big-test')) || (params.MTR_ARGS.contains('--only-big-test')))
     ) {
-        LABEL = 'docker-32gb'
+        LABEL = 'virtualbox-docker'
         pipeline_timeout = 13
       }
 
@@ -113,7 +113,7 @@ pipeline {
             description: 'Run each test N number of times, --repeat=N',
             name: 'MTR_REPEAT')
         choice(
-            choices: 'docker-32gb\ndocker',
+            choices: 'docker-32gb\ndocker\nvirtualbox-docker',
             description: 'Run build on specified instance type',
             name: 'LABEL')
     }
@@ -152,7 +152,8 @@ pipeline {
                         fi
                         rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                     '''
-                    git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                    git branch: 'check_do', url: 'https://github.com/hors/ps-build'
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '4422eb0c-26be-4454-8823-fc76b9b3b120', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                     sh '''
                         # sudo is needed for better node recovery after compilation failure
                         # if building failed on compilation stage directory will have files owned by docker user
@@ -178,13 +179,13 @@ pipeline {
                         gzip build.log
 
                         if [[ -f build.log.gz ]]; then
-                            until aws s3 cp --no-progress --acl public-read build.log.gz s3://ps-build-cache/${BUILD_TAG}/build.log.gz; do
+                            until aws s3 cp --no-progress --acl public-read build.log.gz s3://ps-test-do/DO/${BUILD_TAG}/build.log.gz; do
                                 sleep 5
                             done
                         fi
 
                         if [[ -f \$(ls sources/results/*.tar.gz | head -1) ]]; then
-                            until aws s3 cp --no-progress --acl public-read sources/results/*.tar.gz s3://ps-build-cache/${BUILD_TAG}/binary.tar.gz; do
+                            until aws s3 cp --no-progress --acl public-read sources/results/*.tar.gz s3://ps-test-do/DO/${BUILD_TAG}/binary.tar.gz; do
                                 sleep 5
                             done
                         else
@@ -192,6 +193,7 @@ pipeline {
                             exit 1
                         fi
                     '''
+                    }
                     }
                 }
             }
@@ -202,11 +204,13 @@ pipeline {
                 timeout(time: 60, unit: 'MINUTES')  {
                     retry(3) {
                         deleteDir()
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '4422eb0c-26be-4454-8823-fc76b9b3b120', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                         sh '''
-                            aws s3 cp --no-progress s3://ps-build-cache/${BUILD_TAG}/build.log.gz ./build.log.gz
+                            aws s3 cp --no-progress s3://ps-test-do/DO/${BUILD_TAG}/build.log.gz ./build.log.gz
                             gunzip build.log.gz
                         '''
                         warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', parserConfigurations: [[parserName: 'GNU C Compiler 4 (gcc)', pattern: 'build.log']], unHealthy: ''
+                    }
                     }
                 }
             }
@@ -216,8 +220,8 @@ pipeline {
             steps {
                 timeout(time: pipeline_timeout, unit: 'HOURS')  {
                     retry(3) {
-                        git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
-                        withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
+                        git branch: 'check_do', url: 'https://github.com/hors/ps-build'
+                        withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN'), [$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '4422eb0c-26be-4454-8823-fc76b9b3b120', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                             sh '''
                                 sudo git reset --hard
                                 sudo git clean -xdf
@@ -225,7 +229,7 @@ pipeline {
                                 sudo git -C sources reset --hard || :
                                 sudo git -C sources clean -xdf   || :
 
-                                until aws s3 cp --no-progress s3://ps-build-cache/${BUILD_TAG}/binary.tar.gz ./sources/results/binary.tar.gz; do
+                                until aws s3 cp --no-progress s3://ps-test-do/DO/${BUILD_TAG}/binary.tar.gz ./sources/results/binary.tar.gz; do
                                     sleep 5
                                 done
 
@@ -240,7 +244,7 @@ pipeline {
 
                                 echo Archive test: \$(date -u "+%s")
                                 gzip sources/results/*.output
-                                until aws s3 sync --no-progress --acl public-read --exclude 'binary.tar.gz' ./sources/results/ s3://ps-build-cache/${BUILD_TAG}/; do
+                                until aws s3 sync --no-progress --acl public-read --exclude 'binary.tar.gz' ./sources/results/ s3://ps-test-do/DO/${BUILD_TAG}/; do
                                     sleep 5
                                 done
                             '''
@@ -254,15 +258,17 @@ pipeline {
             steps {
                 retry(3) {
                 deleteDir()
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '4422eb0c-26be-4454-8823-fc76b9b3b120', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                 sh '''
-                    aws s3 sync --no-progress --exclude 'binary.tar.gz' s3://ps-build-cache/${BUILD_TAG}/ ./
+                    aws s3 sync --no-progress --exclude 'binary.tar.gz' s3://ps-test-do/DO/${BUILD_TAG}/ ./
 
                     echo "
-                        binary    - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/binary.tar.gz
-                        build log - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/build.log.gz
-                        mtr log   - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/mtr.output.gz
+                        binary    - https://s3.us-east-2.amazonaws.com/ps-test-do/DO/${BUILD_TAG}/binary.tar.gz
+                        build log - https://s3.us-east-2.amazonaws.com/ps-test-do/DO/${BUILD_TAG}/build.log.gz
+                        mtr log   - https://s3.us-east-2.amazonaws.com/ps-test-do/DO/${BUILD_TAG}/mtr.output.gz
                     " > public_url
                 '''
+                }
                 step([$class: 'JUnitResultArchiver', testResults: '*.xml', healthScaleFactor: 1.0])
                 archiveArtifacts 'build.log.gz,*.xml,*.output.gz,public_url'
                 }
