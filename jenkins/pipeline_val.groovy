@@ -162,12 +162,9 @@ pipeline {
                         ./local/checkout
 
                         echo Build: \$(date -u "+%s")
-                        sg docker -c "
-                            if [ \$(docker ps -q | wc -l) -ne 0 ]; then
-                                docker ps -q | xargs docker stop --time 1 || :
-                            fi
-                            ./docker/run-build ${DOCKER_OS}
-                        " 2>&1 | tee build.log
+                        sudo ./docker/install-deps
+                        ./local/build-binary 2>&1 | tee build.log
+
 
                         echo Archive build: \$(date -u "+%s")
                         sed -i -e '
@@ -183,8 +180,10 @@ pipeline {
                             done
                         fi
 
-                        if [[ -f \$(ls sources/results/*.tar.gz | head -1) ]]; then
-                            until aws s3 cp --no-progress --acl public-read sources/results/*.tar.gz s3://ps-build-cache/${BUILD_TAG}/binary.tar.gz; do
+                        pwd
+                        find /mnt/jenkins/workspace/percona-server-8.0-pipeline-v/ -name "Percona-Server-8.0.16-6-valgrind-Linux.x86_64.tar.gz"
+                        if [[ -f \$(ls ./build/*.tar.gz | head -1) ]]; then
+                            until aws s3 cp --no-progress --acl public-read ./build/*.tar.gz s3://ps-build-cache/${BUILD_TAG}/binary.tar.gz; do
                                 sleep 5
                             done
                         else
@@ -230,12 +229,7 @@ pipeline {
                                 done
 
                                 echo Test: \$(date -u "+%s")
-                                sg docker -c "
-                                    if [ \$(docker ps -q | wc -l) -ne 0 ]; then
-                                        docker ps -q | xargs docker stop --time 1 || :
-                                    fi
-                                    ulimit -a
-                                    ./docker/run-test ${DOCKER_OS}
+                                ./local/test-binary
                                 "
 
                                 echo Archive test: \$(date -u "+%s")
