@@ -9,13 +9,24 @@ build_docker() {
     local SOURCE_IMAGE=$1
 
     sed -e "s^FROM .*^FROM ${SOURCE_IMAGE}^" \
+        ${DOCKER_DIR}/Dockerfile.inc_new \
+        > ${DOCKER_DIR}/Dockerfile-new
+
+    docker build \
+        --squash \
+        --no-cache \
+        -t perconalab/ps-build:roboxes-rhel8 \
+        --file ${DOCKER_DIR}/Dockerfile-new \
+        $DOCKER_DIR
+
+    sed -e "s^FROM .*^FROM ${SOURCE_IMAGE}^" \
         ${DOCKER_DIR}/Dockerfile.inc \
         > ${DOCKER_DIR}/Dockerfile-${SOURCE_IMAGE//[:\/]/-}
 
     docker build \
         --squash \
         --no-cache \
-        -t perconalab/ps-build:${SOURCE_IMAGE//[:\/]/-} \
+        -t perconalab/ps-build:roboxes-rhel8 \
         --file ${DOCKER_DIR}/Dockerfile-${SOURCE_IMAGE//[:\/]/-} \
         $DOCKER_DIR
 
