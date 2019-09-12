@@ -128,6 +128,13 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '200', artifactNumToKeepStr: '200'))
     }
     stages {
+        stage('TEST JENKINS-49183') {
+            options { retry(10) }
+            agent { label 'micro-amazon' }
+            steps {
+                sh 'if (( $RANDOM % 2 )); then exit 0; else exit 1; fi;'
+            }
+        }
         stage('Build') {
             options { retry(3) }
             agent { label LABEL }
@@ -152,7 +159,7 @@ pipeline {
                     fi
                     rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                 '''
-                git branch: '5.7', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'JENKINS-49183-check-issue-test', url: 'https://github.com/hors/ps-build'
                 sh '''
                     git reset --hard
                     git clean -xdf
@@ -208,7 +215,7 @@ pipeline {
             options { retry(3) }
             agent { label LABEL }
             steps {
-                git branch: '5.7', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'JENKINS-49183-check-issue-test', url: 'https://github.com/hors/ps-build'
                 withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                     sh '''
                         git reset --hard
@@ -260,11 +267,6 @@ pipeline {
             sh '''
                 echo Finish: \$(date -u "+%s")
             '''
-
-            // workaround https://issues.jenkins-ci.org/browse/JENKINS-49183
-            script {
-                currentBuild.result = 'UNSTABLE'
-            }
         }
     }
 }
