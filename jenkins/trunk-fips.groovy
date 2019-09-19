@@ -1,7 +1,7 @@
 void build(String CMAKE_BUILD_TYPE) {
     script {
         sh 'echo Prepare: \$(date -u "+%s")'
-        git branch: PS_BRANCH, url: 'https://github.com/Percona-Lab/ps-build'
+        git branch: 'JEN-1147-fix-centos7-dep-issue', url: 'https://github.com/hors/ps-build'
         sh '''
             git reset --hard
             git clean -xdf
