@@ -135,7 +135,7 @@ pipeline {
                     fi
                     rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                 '''
-                git branch: '5.6', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'JEN-1164-improve-summary-results', url: 'https://github.com/hors/ps-build'
                 sh '''
                     git reset --hard
                     git clean -xdf
@@ -191,7 +191,7 @@ pipeline {
             options { retry(3) }
             agent { label LABEL }
             steps {
-                git branch: '5.6', url: 'https://github.com/Percona-Lab/ps-build'
+                git branch: 'JEN-1164-improve-summary-results', url: 'https://github.com/hors/ps-build'
                 sh '''
                     git reset --hard
                     git clean -xdf

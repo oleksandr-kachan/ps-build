@@ -55,7 +55,7 @@ function process_mtr_output {
   local TESTSUITE=${1}
   local INFILE=${2}
   local OUTFILE=${3}
-  egrep -o '[[:alpha:]]+(_[[:alnum:]]+)?(\.\/)?.*\[.*\].*' ${INFILE} | sort | \
+  egrep -o '[[:alpha:]]+(_[[:alnum:]]+)?(\.\/)?.*\[.*\].*' ${INFILE} | sort | uniq -c | \
   gawk 'BEGIN { print "<testsuite name=\"@@TESTSUITE@@\" tests=\"@@PASSED@@\" failures=\"@@FAILURES@@\" disabled=\"@@DISABLED@@\" skipped=\"@@SKIPPED@@\">" }
   /\[.*pass \]/       { printf "\t<testcase name=\"%s\" time=\"%.3f\"></testcase>\n", $1, $NF/1000.0 }
   /\[ disabled \]/    { printf "\t<testcase name=\"%s\"><skipped/></testcase>\n", $1 }
@@ -123,10 +123,10 @@ if [[ "${DEFAULT_TESTING}" != "no" ]]; then
         --max-test-fail=0 \
         --suite-timeout=9999 \
         --testcase-timeout=${TESTCASE_TIMEOUT} \
-        | tee ${WORKDIR_ABS}/mtr.output \
+        --xml-report=${WORKDIR_ABS}/junit.xml \
         || status=$?
 
-    process_mtr_output MySQL "${WORKDIR_ABS}/mtr.output" "${WORKDIR_ABS}/junit.xml"
+#    process_mtr_output MySQL "${WORKDIR_ABS}/mtr.output" "${WORKDIR_ABS}/junit.xml"
 fi
 #
 if [[ "$HOTBACKUP_TESTING" != "no" ]] && [[ -n "${TOKUDB_PLUGIN}" ]] && [[ -n "${HOTBACKUP_LIB}" ]] && [[ -n "${HOTBACKUP_PLUGIN}" ]]; then
@@ -141,9 +141,9 @@ if [[ "$HOTBACKUP_TESTING" != "no" ]] && [[ -n "${TOKUDB_PLUGIN}" ]] && [[ -n "$
       ${MTR_ARGS} \
       --mysqld-env="LD_PRELOAD=${MYSQLD_ENV}" \
       --suite tokudb.backup \
-      | tee ${WORKDIR_ABS}/tokudb_hotbackup.output \
+      --xml-report=${WORKDIR_ABS}/junit_tokudb_hotbackup.xml \
       || true
-    process_mtr_output "Percona Server - TokuDB HotBackup" "${WORKDIR_ABS}/tokudb_hotbackup.output" "${WORKDIR_ABS}/junit_tokudb_hotbackup.xml"
+#    process_mtr_output "Percona Server - TokuDB HotBackup" "${WORKDIR_ABS}/tokudb_hotbackup.output" "${WORKDIR_ABS}/junit_tokudb_hotbackup.xml"
 fi
 
 # if there's tokudb plugin compiled run tokudb tests else exit with previous status
@@ -161,8 +161,8 @@ if [[ "${TOKUDB_ENGINES_MTR}" = "yes" ]] && [[ -n "${TOKUDB_PLUGIN}" ]]; then
             --mysqld=--plugin-load=tokudb=ha_tokudb.so --mysqld-env="LD_PRELOAD=${MYSQLD_ENV}" \
             --mysqld=--loose-tokudb_auto_analyze=0 --mysqld=--loose-tokudb_analyze_in_background=false \
             ${TOKUDB_ENGINES_MTR_ARGS} \
-            2>&1 | tee ${WORKDIR_ABS}/tokudb.output || true
-    process_mtr_output "Percona Server - TokuDB" "${WORKDIR_ABS}/tokudb.output" "${WORKDIR_ABS}/junit_tokudb.xml"
+            --xml-report=${WORKDIR_ABS}/junit_tokudb.xml || true
+#    process_mtr_output "Percona Server - TokuDB" "${WORKDIR_ABS}/tokudb.output" "${WORKDIR_ABS}/junit_tokudb.xml"
 fi
 
 exit $status
