@@ -152,7 +152,7 @@ pipeline {
                         fi
                         rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                     '''
-                    git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                    git branch: 'JEN-1164-improve-summary-results-80', url: 'https://github.com/hors/ps-build'
                     sh '''
                         # sudo is needed for better node recovery after compilation failure
                         # if building failed on compilation stage directory will have files owned by docker user
@@ -216,7 +216,7 @@ pipeline {
             steps {
                 timeout(time: pipeline_timeout, unit: 'HOURS')  {
                     retry(3) {
-                        git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                        git branch: 'JEN-1164-improve-summary-results-80', url: 'https://github.com/hors/ps-build'
                         withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                             sh '''
                                 sudo git reset --hard
@@ -262,6 +262,7 @@ pipeline {
                         build log - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/build.log.gz
                         mtr log   - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/mtr.output.gz
                     " > public_url
+                    sudo find /mnt/ -name junit.xml
                 '''
                 step([$class: 'JUnitResultArchiver', testResults: '*.xml', healthScaleFactor: 1.0])
                 archiveArtifacts 'build.log.gz,*.xml,*.output.gz,public_url'
