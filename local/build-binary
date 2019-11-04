@@ -116,6 +116,12 @@ if [[ "$COMPILER" != "default" ]]; then
     export CXX=$(echo ${COMPILER} | sed -e 's/gcc/g++/; s/clang/clang++/')
 fi
 
+if [[ -f '/usr/bin/yum' ]] || [[ -f '/bin/yum' ]]; then
+    sudo yum -y install libedit-devel
+else
+    sudo apt-get -y install libeditline-dev
+fi
+
 # CentOS 6 and 7
 if [[ -f /opt/rh/devtoolset-8/enable ]]; then
     source /opt/rh/devtoolset-8/enable
