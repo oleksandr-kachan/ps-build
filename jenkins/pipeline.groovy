@@ -6,7 +6,7 @@ if (
     ) { pipeline_timeout = 24 }
 
 if (params.ANALYZER_OPTS.contains('-DWITH_VALGRIND=ON'))
-    { pipeline_timeout = 144 }
+    { pipeline_timeout = 200 }
 
 if (
     ((params.ANALYZER_OPTS.contains('-DWITH_ASAN=ON')) &&
@@ -15,7 +15,7 @@ if (
     ((params.MTR_ARGS.contains('--big-test')) || (params.MTR_ARGS.contains('--only-big-test')))
     ) {
         LABEL = 'docker-32gb'
-        pipeline_timeout = 13
+        pipeline_timeout = 200
       }
 
 pipeline {
@@ -158,7 +158,7 @@ pipeline {
                         fi
                         rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                     '''
-                    git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                    git branch: 'check-v-job', url: 'https://github.com/hors/ps-build'
                     sh '''
                         # sudo is needed for better node recovery after compilation failure
                         # if building failed on compilation stage directory will have files owned by docker user
@@ -222,7 +222,7 @@ pipeline {
             steps {
                 timeout(time: pipeline_timeout, unit: 'HOURS')  {
                     retry(3) {
-                        git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                        git branch: 'check-v-job', url: 'https://github.com/hors/ps-build'
                         withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                             sh '''
                                 sudo git reset --hard

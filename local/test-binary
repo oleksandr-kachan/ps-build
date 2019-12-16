@@ -92,7 +92,7 @@ if [[ "${ANALYZER_OPTS}" == *WITH_VALGRIND=ON* ]]; then
   [[ ${OPENSSL_VER} < '1.0.2' ]] && export OPENSSL_ia32cap=~0x200000000000000
   TESTCASE_TIMEOUT=$((TESTCASE_TIMEOUT * 2))
   if [[ ${PARALLEL} -gt 1 ]]; then
-    PARALLEL=$((PARALLEL/3))
+    PARALLEL=8
   fi
 fi
 
