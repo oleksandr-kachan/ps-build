@@ -163,7 +163,7 @@ pipeline {
                         fi
                         rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                     '''
-                    git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                    git branch: 'PS-6849-8.0', url: 'https://github.com/oleksandr-kachan/ps-build'
                     sh '''
                         # sudo is needed for better node recovery after compilation failure
                         # if building failed on compilation stage directory will have files owned by docker user
@@ -227,7 +227,7 @@ pipeline {
             steps {
                 timeout(time: pipeline_timeout, unit: 'HOURS')  {
                     retry(3) {
-                        git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
+                        git branch: 'PS-6849-8.0', url: 'https://github.com/oleksandr-kachan/ps-build'
                         withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                             sh '''
                                 sudo git reset --hard
@@ -250,7 +250,6 @@ pipeline {
                                 "
 
                                 echo Archive test: \$(date -u "+%s")
-                                gzip sources/results/*.output
                                 until aws s3 sync --no-progress --acl public-read --exclude 'binary.tar.gz' ./sources/results/ s3://ps-build-cache/${BUILD_TAG}/; do
                                     sleep 5
                                 done
@@ -271,11 +270,10 @@ pipeline {
                     echo "
                         binary    - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/binary.tar.gz
                         build log - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/build.log.gz
-                        mtr log   - https://s3.us-east-2.amazonaws.com/ps-build-cache/${BUILD_TAG}/mtr.output.gz
                     " > public_url
                 '''
                 step([$class: 'JUnitResultArchiver', testResults: '*.xml', healthScaleFactor: 1.0])
-                archiveArtifacts 'build.log.gz,*.xml,*.output.gz,public_url'
+                archiveArtifacts 'build.log.gz,*.xml,public_url'
                 }
             }
         }
