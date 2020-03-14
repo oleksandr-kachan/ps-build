@@ -26,7 +26,7 @@ pipeline {
             name: 'GIT_REPO',
             trim: true)
         string(
-            defaultValue: 'PS-6907-add-mysqld_safe',
+            defaultValue: '8.0',
             description: 'Tag/Branch for percona-server repository',
             name: 'BRANCH',
             trim: true)
@@ -158,7 +158,7 @@ pipeline {
                         fi
                         rm -f ${WORKSPACE}/VERSION-${BUILD_NUMBER}
                     '''
-                    git branch: 'PS-6907-add-mysqld_safe', url: 'https://github.com/hors/ps-build'
+                    git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
                     sh '''
                         # sudo is needed for better node recovery after compilation failure
                         # if building failed on compilation stage directory will have files owned by docker user
@@ -222,7 +222,7 @@ pipeline {
             steps {
                 timeout(time: pipeline_timeout, unit: 'HOURS')  {
                     retry(3) {
-                        git branch: 'PS-6907-add-mysqld_safe', url: 'https://github.com/hors/ps-build'
+                        git branch: '8.0', url: 'https://github.com/Percona-Lab/ps-build'
                         withCredentials([string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN')]) {
                             sh '''
                                 sudo git reset --hard
