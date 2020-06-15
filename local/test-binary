@@ -10,6 +10,7 @@
 #      TOKUDB_ENGINES_MTR = (yes no)
 #      MTR_ARGS
 #      MTR_REPEAT
+#      DOCKER_OS
 
 set -o errexit
 set -o xtrace
@@ -130,6 +131,7 @@ if [[ "${DEFAULT_TESTING}" != "no" ]]; then
         --suite-timeout=9999 \
         --testcase-timeout=${TESTCASE_TIMEOUT} \
         --junit-output=${WORKDIR_ABS}/junit.xml \
+        --junit-package="default.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" \
         || true
 fi
 
@@ -147,6 +149,7 @@ if [[ "$HOTBACKUP_TESTING" != "no" ]] && [[ -n "${TOKUDB_PLUGIN}" ]] && [[ -n "$
         --mysqld-env="LD_PRELOAD=${MYSQLD_ENV}" \
         --suite tokudb.backup \
         --junit-output=${WORKDIR_ABS}/junit_tokudb_hotbackup.xml \
+        --junit-package="tokudb_hotbackup.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" \
         || true
 fi
 
@@ -165,7 +168,8 @@ if [[ "${TOKUDB_ENGINES_MTR}" = "yes" ]] && [[ -n "${TOKUDB_PLUGIN}" ]]; then
             --mysqld=--plugin-load=tokudb=ha_tokudb.so --mysqld-env="LD_PRELOAD=${MYSQLD_ENV}" \
             --mysqld=--loose-tokudb_auto_analyze=0 --mysqld=--loose-tokudb_analyze_in_background=false \
             ${TOKUDB_ENGINES_MTR_ARGS} \
-            --junit-output=${WORKDIR_ABS}/junit_tokudb.xml || true
+            --junit-output=${WORKDIR_ABS}/junit_tokudb.xml \
+            --junit-package="tokudb.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" || true
 fi
 
 # if all tests are disabled, run only one small test to prevent test stage issue and perform simle test of binary file
@@ -174,7 +178,8 @@ if [[ "${TOKUDB_ENGINES_MTR}" = 'no' ]] && [[ "${HOTBACKUP_TESTING}" = 'no' ]] &
         --force \
         --max-test-fail=0 \
         main.1st \
-        --junit-output=${WORKDIR_ABS}/small.xml || true
+        --junit-output=${WORKDIR_ABS}/small.xml \
+        --junit-package="small.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" || true
 fi
 
 if [[ ${RHVER} != 6 ]] && [[ "${KEYRING_VAULT_MTR}" == 'yes' ]]; then
@@ -229,7 +234,8 @@ if [[ ${RHVER} != 6 ]] && [[ "${KEYRING_VAULT_MTR}" == 'yes' ]]; then
         --parallel=$(nproc) \
         --retry=0 \
         --suite=keyring_vault \
-        --junit-output=${WORKDIR_ABS}/keyring_vault_dev_v1.xml || true
+        --junit-output=${WORKDIR_ABS}/keyring_vault_dev_v1.xml \
+        --junit-package="keyring_vault_dev_v1.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" || true
 
     MTR_VAULT_ADDRESS=${VAULT_V2_DEV_ADDRESS} \
     MTR_VAULT_TOKEN=${VAULT_V2_DEV_TOKEN} \
@@ -240,7 +246,8 @@ if [[ ${RHVER} != 6 ]] && [[ "${KEYRING_VAULT_MTR}" == 'yes' ]]; then
         --parallel=$(nproc) \
         --retry=0 \
         --suite=keyring_vault \
-        --junit-output=${WORKDIR_ABS}/keyring_vault_dev_v2.xml || true
+        --junit-output=${WORKDIR_ABS}/keyring_vault_dev_v2.xml \
+        --junit-package="keyring_vault_dev_v2.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" || true
 
 
     echo "Running tests with Hashicorp Vault in Production mode"
@@ -253,7 +260,8 @@ if [[ ${RHVER} != 6 ]] && [[ "${KEYRING_VAULT_MTR}" == 'yes' ]]; then
         --parallel=$(nproc) \
         --retry=0 \
         --suite=keyring_vault \
-        --junit-output=${WORKDIR_ABS}/keyring_vault_prod_v1.xml || true
+        --junit-output=${WORKDIR_ABS}/keyring_vault_prod_v1.xml \
+        --junit-package="keyring_vault_prod_v1.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" || true
 
     MTR_VAULT_ADDRESS=${VAULT_V2_PROD_ADDRESS} \
     MTR_VAULT_TOKEN=${VAULT_V2_PROD_TOKEN} \
@@ -264,7 +272,8 @@ if [[ ${RHVER} != 6 ]] && [[ "${KEYRING_VAULT_MTR}" == 'yes' ]]; then
         --parallel=$(nproc) \
         --retry=0 \
         --suite=keyring_vault \
-        --junit-output=${WORKDIR_ABS}/keyring_vault_prod_v2.xml || true
+        --junit-output=${WORKDIR_ABS}/keyring_vault_prod_v2.xml \
+        --junit-package="keyring_vault_prod_v2.${DOCKER_OS}.${CMAKE_BUILD_TYPE}" || true
 
 fi
 
