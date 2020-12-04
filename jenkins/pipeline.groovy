@@ -224,33 +224,28 @@ pipeline {
             agent { label LABEL }
             steps {
                 git branch: 'PS-6849-5.7', url: 'https://github.com/oleksandr-kachan/ps-build'
-                withCredentials([
-                    string(credentialsId: 'MTR_VAULT_TOKEN', variable: 'MTR_VAULT_TOKEN'),
-                    string(credentialsId: 'VAULT_V1_DEV_TOKEN', variable: 'VAULT_V1_DEV_TOKEN'),
-                    string(credentialsId: 'VAULT_V2_DEV_TOKEN', variable: 'VAULT_V2_DEV_TOKEN')]) {
-                        sh '''
-                            git reset --hard
-                            git clean -xdf
-                            rm -rf sources/results
-                            until aws s3 cp --no-progress s3://ps-build-cache/${BUILD_TAG}/binary.tar.gz ./sources/results/binary.tar.gz; do
-                                sleep 5
-                            done
+                sh '''
+                    git reset --hard
+                    git clean -xdf
+                    rm -rf sources/results
+                    until aws s3 cp --no-progress s3://ps-build-cache/${BUILD_TAG}/binary.tar.gz ./sources/results/binary.tar.gz; do
+                        sleep 5
+                    done
 
-                            echo Test: \$(date -u "+%s")
-                            sg docker -c "
-                                if [ \$(docker ps -q | wc -l) -ne 0 ]; then
-                                    docker ps -q | xargs docker stop --time 1 || :
-                                fi
-                                ulimit -a
-                                ./docker/run-test ${DOCKER_OS}
-                            "
+                    echo Test: \$(date -u "+%s")
+                    sg docker -c "
+                        if [ \$(docker ps -q | wc -l) -ne 0 ]; then
+                            docker ps -q | xargs docker stop --time 1 || :
+                        fi
+                        ulimit -a
+                        ./docker/run-test ${DOCKER_OS}
+                    "
 
-                            echo Archive test: \$(date -u "+%s")
-                            until aws s3 sync --no-progress --acl public-read --exclude 'binary.tar.gz' ./sources/results/ s3://ps-build-cache/${BUILD_TAG}/; do
-                                sleep 5
-                            done
-                        '''
-                }
+                    echo Archive test: \$(date -u "+%s")
+                    until aws s3 sync --no-progress --acl public-read --exclude 'binary.tar.gz' ./sources/results/ s3://ps-build-cache/${BUILD_TAG}/; do
+                        sleep 5
+                    done
+                '''
             }
         }
         stage('Archive') {
